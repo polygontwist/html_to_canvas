@@ -580,11 +580,18 @@ const htmltocanvas=function(optionen){
 								ctx.fillStyle = styles.color;
 								if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
 					
-								if(styles.textAlign==="center"){
+								if(styles.textAlign==="center"
+									|| styles.justifyContent==="center"
+								){
 									outx = xx + b*0.5 -size.width*0.5;
 								}
 								if(styles.textAlign==="right"){
 									outx = xx + b -size.width - padding.r;
+								}
+								
+								if(styles.alignItems==="center"){
+									//vertikal centriert
+									outy=yy+lineheight*0.5+node.offsetHeight*0.5
 								}
 								
 								//drawcross(ctx,outx,outy,6,styles.color);		

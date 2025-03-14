@@ -37,6 +37,10 @@ Auch klassische `<input>`-Elemente werden gerendert, allerdings ohne Interaktion
 - Modus zum erstellen einer Alphamap
 - Rückgabe der Klickbereiche (A-Tags + A-Knoten)
 
+## Änderungen in Version 5
+- Unterstützung für "center" bei justifyContent und alignItems bei Textpositionierung
+
+
 ## Schriftart-Quelle
 - **URL:** [IcoMoon](https://icomoon.io/#icons-icomoon)
 - **Designer:** Keyamoon

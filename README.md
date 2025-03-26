@@ -40,6 +40,9 @@ Auch klassische `<input>`-Elemente werden gerendert, allerdings ohne Interaktion
 ## Änderungen in Version 5
 - Unterstützung für "center" bei justifyContent und alignItems bei Textpositionierung
 
+## Änderungen in Version 6
+- bessere Textpositionierung bei Flex
+
 
 ## Schriftart-Quelle
 - **URL:** [IcoMoon](https://icomoon.io/#icons-icomoon)

@@ -196,7 +196,7 @@ const htmltocanvas=function(optionen){
 		;
 	if(optionen["scale"])qscale=optionen["scale"];
 
-	//clonen geht nicht, weilnicht gerendet
+	//clonen geht nicht, weil nicht gerendet
 
 	var b=meinHTML.offsetWidth,
 		h=meinHTML.offsetHeight
@@ -354,7 +354,7 @@ const htmltocanvas=function(optionen){
 		}
 		
 		if(node.nodeName==="A"){
-			//console.log("a>>>>",outx,outy,b,h,scaleX,scaleY);
+			//console.log("a>>>>",outx,outy,b,h,scaleX,scaleY,node);
 			
 			if(b>0 && h>0){
 				redata.schalter.push({
@@ -484,14 +484,30 @@ const htmltocanvas=function(optionen){
 				if(cnode.type=="text"){
 					ctx.fillStyle = cstyle.color;
 					if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
+					
 					ctx.font = cstyle.font;
-					ctx.fillText(cnode.value, 
-							cnode.offsetLeft+parseInt(cstyle.paddingLeft)+1,
-							cnode.offsetTop+4
+					
+					outx =cnode.offsetLeft+parseInt(cstyle.paddingLeft)+1;
+					outy =cnode.offsetTop+4
 							+inptextsize.actualBoundingBoxAscent
 							+inptextsize.actualBoundingBoxDescent
-							+parseInt(cstyle.paddingTop)
-						);
+							+parseInt(cstyle.paddingTop);					
+					
+					if(cstyle.textAlign==="center"
+						|| cstyle.justifyContent==="center"
+					){
+						outx = cnode.offsetLeft+cnode.offsetWidth*0.5 -inptextsize.width*0.5;
+					}
+					if(cstyle.textAlign==="right"){
+						outx = cnode.offsetLeft -inptextsize.width - padding.r;
+					}
+					
+					//vertikal immer mittig
+					ctx.textBaseline="middle";//default
+					outy=cnode.offsetTop+node.offsetHeight*0.5;
+					
+					ctx.fillText(cnode.value,outx,outy);
+					//drawcross(ctx,outx,outy,6,styles.color);
 				}
 				
 			}
@@ -523,11 +539,11 @@ const htmltocanvas=function(optionen){
 					preworte=preworte.split('\t').join('');
 					preworte=preworte.split(" ");
 					
-					
+	 
 					worte=[];
 					for(t=0;t<preworte.length;t++){
 						tmp=preworte[t];
-						if(tmp.indexOf('-')>-1){//Worttrennungen
+						if(tmp.indexOf('-')>-1 && tmp!="-"){//Worttrennungen
 							arr=tmp.split(/(?=-)|(?<=-)/);
 							for(t2=0;t2<arr.length;t2++){
 								if(arr[t2]=="-"){
@@ -543,7 +559,7 @@ const htmltocanvas=function(optionen){
 							if(tmp!="")
 								worte.push(tmp);
 						}
-					}	
+					}					
 					
 					tmp="";
 					out="";
@@ -577,6 +593,7 @@ const htmltocanvas=function(optionen){
 								outy =yy+lineheight+padding.t;					
 								
 								ctx.textAlign = "left";
+								ctx.textBaseline="alphabetic";//default
 								ctx.fillStyle = styles.color;
 								if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
 					
@@ -591,9 +608,10 @@ const htmltocanvas=function(optionen){
 								
 								if(styles.alignItems==="center"){
 									//vertikal centriert
-									outy=yy+lineheight*0.5+node.offsetHeight*0.5
+									outy=yy+node.offsetHeight*0.5;
+									ctx.textBaseline="middle";
 								}
-								
+//if(node.nodeName==="A")console.log(styles.alignItems,lineheight,node.offsetHeight,size,node);								
 								//drawcross(ctx,outx,outy,6,styles.color);		
 
 								ctx.fillText(out,outx,outy);//Zeile ausgeben

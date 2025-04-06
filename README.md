@@ -42,6 +42,9 @@ Auch klassische `<input>`-Elemente werden gerendert, allerdings ohne Interaktion
 
 ## Änderungen in Version 6
 - bessere Textpositionierung bei Flex
+ 
+## Änderungen in Version 7
+- neben A- werden auch BUTTON-Klickbereiche zurückgegeben
 
 
 ## Schriftart-Quelle

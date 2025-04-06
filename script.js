@@ -353,8 +353,8 @@ const htmltocanvas=function(optionen){
 			}
 		}
 		
-		if(node.nodeName==="A"){
-			//console.log("a>>>>",outx,outy,b,h,scaleX,scaleY,node);
+		if(node.nodeName==="A" || node.nodeName==="BUTTON"){
+			//console.log("a-butt>>>>",outx,outy,b,h,scaleX,scaleY,node);
 			
 			if(b>0 && h>0){
 				redata.schalter.push({
@@ -539,7 +539,6 @@ const htmltocanvas=function(optionen){
 					preworte=preworte.split('\t').join('');
 					preworte=preworte.split(" ");
 					
-	 
 					worte=[];
 					for(t=0;t<preworte.length;t++){
 						tmp=preworte[t];

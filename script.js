@@ -631,9 +631,19 @@ const htmltocanvas=function(optionen){
 				
 				}				
 			}
-			else{
+			else
+			if(cnode.nodeName==="CANVAS"){
+				//nicht wenn Alpha!
+				if(!(optionen["alphamap"]===true))
+					ctx.drawImage(cnode, 
+						cnode.offsetLeft, 
+						cnode.offsetTop,
+						cnode.offsetWidth,
+						cnode.offsetHeight);				
+			}
+			else
+			{
 				//console.log(cnode.nodeName,cstyle);
-				
 			}
 			
 			if(cnode.childNodes.length>0){

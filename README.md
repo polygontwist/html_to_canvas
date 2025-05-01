@@ -46,6 +46,9 @@ Auch klassische `<input>`-Elemente werden gerendert, allerdings ohne Interaktion
 ## Änderungen in Version 7
 - neben A- werden auch BUTTON-Klickbereiche zurückgegeben
 
+## Änderungen in Version 8
+- CANVAS-Elemente werden auch gezeichnet
+
 
 ## Schriftart-Quelle
 - **URL:** [IcoMoon](https://icomoon.io/#icons-icomoon)

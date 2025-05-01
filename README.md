@@ -1,4 +1,4 @@
-# htmlcan/htmltocanvas (HTML to Canvas)
+# htmlcan/htmltocanvas/html2canvas (HTML to Canvas)
 
 HTML-Knoten auf canva-Element rendern, z. B. für WebGL-Texturen.
 

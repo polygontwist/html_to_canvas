@@ -188,11 +188,17 @@ const drawBGBox=function(ctx,x,y,b,h ,styles ,node ,isalpha){
 const htmltocanvas=function(optionen){
 	var meinHTML=optionen.quelle,
 		canvas=optionen.canvas,
-		ctx = canvas.getContext('2d'),
+		redata={"schalter":[]};
+	
+	if(canvas==undefined){
+		console.error("kein Ziel",optionen);
+		return redata;
+	}
+		
+	var ctx = canvas.getContext('2d'),
 		qscale=1,
 		inputcolor="#0075ff",
-		i,
-		redata={"schalter":[]}
+		i
 		;
 	if(optionen["scale"])qscale=optionen["scale"];
 

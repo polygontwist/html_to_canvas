@@ -50,6 +50,11 @@ Das Script gibt dazu u.a. eine Liste von A- und BUTTON-Elementen zurück.
 
 ## Änderungen in Version 8
 - CANVAS-Elemente werden auch gezeichnet
+  
+## Änderungen in Version 9
+- Berücksichtigung wenn ein Border 0 ist
+- Input-Radio und -Checkbox werden auch als Schaltflächen zurückgegeben
+- display:none-Text-Elemente werden nicht mehr gezeichnet
 
 
 ## Schriftart-Quelle

@@ -246,7 +246,7 @@ const htmltocanvas=function(optionen){
 			b,h,size,spacer,zhdiff,
 			lineheight,maxb,tmp,out,arr,
 			offsetXbreite,reinfo,nodestyles,cnodestyles,
-			
+			iswordwrap=true,			
 			ctx=data.ctx,
 			styles=window.getComputedStyle(node),
 			
@@ -269,6 +269,9 @@ const htmltocanvas=function(optionen){
 			drawBGBox(ctx,nodepos.x,nodepos.y,b,h ,styles,node, optionen["alphamap"]===true);
 		}		
 		
+		if(styles["whiteSpace"]==="nowrap"){
+			iswordwrap=false;
+		}		
 		
 		//Element
 		padding.l=parseInt(styles.paddingLeft);
@@ -568,7 +571,8 @@ const htmltocanvas=function(optionen){
 					preworte=preworte.split('\n').join('');
 					preworte=preworte.split('\t').join('');
 					preworte=preworte.split(" ");
-					
+
+
 					
 					worte=[];
 					for(t=0;t<preworte.length;t++){
@@ -605,7 +609,7 @@ const htmltocanvas=function(optionen){
 						if(size.actualBoundingBoxDescent)zhdiff+=size.actualBoundingBoxDescent;
 					}
 
-	
+					
 					for(t=0;t<worte.length;t++){
 						wort=worte[t];
 						spacer=" ";
@@ -615,7 +619,7 @@ const htmltocanvas=function(optionen){
 						tmp+=wort+spacer;
 						size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
 						
-						if((size.width+xx)>=maxb || t==worte.length-1){//Breite überschreitet maximale breite, oder rest
+						if(( (size.width+xx)>=maxb && iswordwrap) || t==worte.length-1){//Breite überschreitet maximale breite, oder rest
 							if(t==worte.length-1)out+=''+wort; //Rest
 						
 							if(out.length>0){//Zeile ausgeben

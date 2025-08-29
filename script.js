@@ -243,7 +243,7 @@ const htmltocanvas=function(optionen){
 	
 	const drawHTMLElement=function(node,data){
 		var pstart,pend,i,iz,t,t2,cnode,worte,preworte,wort,cstyle,
-			b,h,size,spacer,zhdiff,
+			b,h,size,spacer,zhdiff,borerb,
 			lineheight,maxb,tmp,out,arr,
 			offsetXbreite,reinfo,nodestyles,cnodestyles,
 			iswordwrap=true,			
@@ -416,6 +416,8 @@ const htmltocanvas=function(optionen){
 
 				//ctx.strokeStyle = cstyle.borderColor;
 				ctx.strokeStyle = cstyle.outlineColor;
+				if(optionen["alphamap"]===true)ctx.strokeStyle ="#ffffff";
+				
 				ctx.lineWidth = 1;//parseInt(cstyle.borderWidth);
 				//ctx.lineWidth = parseInt(cstyle.strokeWidth);
 				ctx.lineJoin = "round";
@@ -426,6 +428,7 @@ const htmltocanvas=function(optionen){
 						//ctx.strokeStyle = cstyle.borderColor;console.log(cstyle);//.color
 						ctx.strokeStyle = cstyle.color;
 					}
+					if(optionen["alphamap"]===true)ctx.strokeStyle ="#ffffff";
 					ctx.beginPath();
 					ctx.arc(
 						cnode.offsetLeft+cnode.offsetWidth*0.5, 
@@ -474,6 +477,7 @@ const htmltocanvas=function(optionen){
 						ctx.stroke();
 						//Häkchen
 						ctx.strokeStyle = cstyle.lightingColor;
+						if(optionen["alphamap"]===true)ctx.strokeStyle = "#ffffff";
 						ctx.beginPath();
 						ctx.moveTo(rx+rb*0.15,ry+rh*0.5);
 						ctx.lineTo(rx+rb*0.40,ry+rh*0.8);
@@ -680,6 +684,15 @@ const htmltocanvas=function(optionen){
 						cnode.offsetHeight);				
 			}
 			else
+			if(cnode.nodeName==="HR"){
+				cstyle=window.getComputedStyle(cnode);
+				
+				drawBGBox(ctx,
+						cnode.offsetLeft,cnode.offsetTop,
+						cnode.offsetWidth,cnode.offsetHeight 
+						,cstyle,cnode, optionen["alphamap"]===true);
+			}
+			else
 			{
 				//console.log(cnode.nodeName,cstyle);
 			}
@@ -715,4 +728,4 @@ const htmltocanvas=function(optionen){
 	return redata;
 }
 
-export{htmltocanvas}
+export{htmltocanvas,drawBGBox,drawRoundedRectLines,drawArc,drawFilledRoundedRect,drawcross,drawRoundRect}

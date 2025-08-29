@@ -56,6 +56,9 @@ Das Script gibt dazu u.a. eine Liste von A- und BUTTON-Elementen zurück.
 - Input-Radio und -Checkbox werden auch als Schaltflächen zurückgegeben
 - display:none-Text-Elemente werden nicht mehr gezeichnet
 
+## Änderungen in Version 10
+- Bugfix Border in Alphamap
+- neues Element HR
 
 ## Schriftart-Quelle
 - **URL:** [IcoMoon](https://icomoon.io/#icons-icomoon)

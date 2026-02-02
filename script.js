@@ -280,10 +280,18 @@ const htmltocanvas=function(optionen){
 		padding.b=parseInt(styles.paddingBottom);
 		
 		maxb=b-padding.l-padding.r;//offsetXbreite;
+
+/*console.log(b,padding,maxb);					
+ctx.lineWidth=1;
+ctx.strokeStyle = '#000000';
+ctx.beginPath();
+ctx.rect(padding.l,padding.t,b-padding.l-padding.r,h-padding.t-padding.b);
+ctx.stroke();
+*/
 		
 		zielsize.w=b-padding.l-padding.r;
 		zielsize.h=h-padding.t-padding.b;
-		
+//console.log(maxb,zielsize);		
 		//start
 		xx=nodepos.x;
 		yy=nodepos.y;
@@ -521,7 +529,6 @@ const htmltocanvas=function(optionen){
 					if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
 					
 					ctx.font = cstyle.font;
-					
 					outx =cnode.offsetLeft+parseInt(cstyle.paddingLeft)+1;
 					outy =cnode.offsetTop+4
 							+inptextsize.actualBoundingBoxAscent
@@ -613,7 +620,7 @@ const htmltocanvas=function(optionen){
 						if(size.actualBoundingBoxDescent)zhdiff+=size.actualBoundingBoxDescent;
 					}
 
-					
+
 					for(t=0;t<worte.length;t++){
 						wort=worte[t];
 						spacer=" ";
@@ -622,9 +629,9 @@ const htmltocanvas=function(optionen){
 						
 						tmp+=wort+spacer;
 						size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
-						
+
 						if(( (size.width+xx)>=maxb && iswordwrap) || t==worte.length-1){//Breite überschreitet maximale breite, oder rest
-							if(t==worte.length-1)out+=''+wort; //Rest
+							//if(t==worte.length-1)out+=''+wort; //Rest
 						
 							if(out.length>0){//Zeile ausgeben
 
@@ -667,9 +674,41 @@ const htmltocanvas=function(optionen){
 							out="";			//neue Zeile
 							tmp=wort+spacer;//Messzeile						
 						}
-						
 						out+=wort+spacer;//Zeile Wort hinzufügen & merken
 					}
+					
+					if(out.length>0){//rest-Zeile ausgeben
+						yy+=lineheight+zhdiff;
+						xx=startX;
+						
+						size = ctx.measureText(out);
+						
+						outx =xx+padding.l;
+						outy =yy+lineheight+padding.t;					
+						
+						ctx.textAlign = "left";
+						ctx.textBaseline="alphabetic";//default
+						ctx.fillStyle = styles.color;
+						if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
+			
+						if(styles.textAlign==="center"
+							|| styles.justifyContent==="center"
+						){
+							outx = xx + b*0.5 -size.width*0.5;
+						}
+						if(styles.textAlign==="right"){
+							outx = xx + b -size.width - padding.r;
+						}
+						
+						if(styles.alignItems==="center"){
+							//vertikal centriert
+							outy=yy+node.offsetHeight*0.5;
+							ctx.textBaseline="middle";
+						}
+						ctx.fillText(out,outx,outy);//Zeile ausgeben
+						
+					}
+					
 				
 				}				
 			}

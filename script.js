@@ -610,8 +610,8 @@ ctx.stroke();
 					
 					tmp="";
 					out="";
+					var zeile=0;
 					
-
 					size = ctx.measureText(worte.join(' '));
 					if(size.fontBoundingBoxDescent!=undefined)
 						zhdiff=size.fontBoundingBoxDescent;
@@ -620,66 +620,77 @@ ctx.stroke();
 						if(size.actualBoundingBoxDescent)zhdiff+=size.actualBoundingBoxDescent;
 					}
 
-
-					for(t=0;t<worte.length;t++){
-						wort=worte[t];
-						spacer=" ";
-						if(wort.charAt(wort.length-1)==="-")
-							spacer='';
-						
-						tmp+=wort+spacer;
-						size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
-
-						if(( (size.width+xx)>=maxb && iswordwrap) || t==worte.length-1){//Breite überschreitet maximale breite, oder rest
-							//if(t==worte.length-1)out+=''+wort; //Rest
-						
-							if(out.length>0){//Zeile ausgeben
-
-								size = ctx.measureText(out);
-								
-								outx =xx+padding.l;
-								outy =yy+lineheight+padding.t;					
-								
-								ctx.textAlign = "left";
-								ctx.textBaseline="alphabetic";//default
-								ctx.fillStyle = styles.color;
-								if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
-					
-								if(styles.textAlign==="center"
-									|| styles.justifyContent==="center"
-								){
-									outx = xx + b*0.5 -size.width*0.5;
-								}
-								if(styles.textAlign==="right"){
-									outx = xx + b -size.width - padding.r;
-								}
-								
-								if(styles.alignItems==="center"){
-									//vertikal centriert
-									outy=yy+node.offsetHeight*0.5;
-									ctx.textBaseline="middle";
-								}
-//if(node.nodeName==="A")console.log(styles.alignItems,lineheight,node.offsetHeight,size,node);								
-								//drawcross(ctx,outx,outy,6,styles.color);		
-
-								ctx.fillText(out,outx,outy);//Zeile ausgeben
-								
-								//nächste Zeile
-								if(t<worte.length-1){
-									yy+=lineheight+zhdiff;
-									xx=startX;
-								}
-							}
+					if(iswordwrap){
+						for(t=0;t<worte.length;t++){
+							wort=worte[t];
+							spacer=" ";
+							if(wort.charAt(wort.length-1)==="-")
+								spacer='';
 							
-							out="";			//neue Zeile
-							tmp=wort+spacer;//Messzeile						
+							tmp+=wort+spacer;
+							size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
+	//console.log(tmp,size.width+xx,maxb);						
+							if(( (size.width+xx)>=maxb && iswordwrap) || t==worte.length-1){
+								//Breite überschreitet maximale breite, oder rest
+								if(t==worte.length-1 && (size.width+xx)<maxb){
+									out+=''+wort; //Rest
+									wort="";
+								}
+							
+								if(out.length>0){//Zeile ausgeben
+
+									size = ctx.measureText(out);
+									
+									outx =xx+padding.l;
+									outy =yy+lineheight+padding.t;					
+									
+									ctx.textAlign = "left";
+									ctx.textBaseline="alphabetic";//default
+									ctx.fillStyle = styles.color;
+									if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
+						
+									if(styles.textAlign==="center"
+										|| styles.justifyContent==="center"
+									){
+										outx = xx + b*0.5 -size.width*0.5;
+									}
+									if(styles.textAlign==="right"){
+										outx = xx + b -size.width - padding.r;
+									}
+									
+									if(styles.alignItems==="center"){
+										//vertikal centriert
+										outy=yy+node.offsetHeight*0.5;
+										ctx.textBaseline="middle";
+									}
+	//if(node.nodeName==="A")console.log(styles.alignItems,lineheight,node.offsetHeight,size,node);								
+									//drawcross(ctx,outx,outy,6,styles.color);		
+
+									ctx.fillText(out,outx,outy);//Zeile ausgeben
+									
+									//nächste Zeile
+									if(t<worte.length-1){
+										yy+=lineheight+zhdiff;
+										xx=startX;
+									}
+									zeile++;
+								}
+								
+								out="";			//neue Zeile
+								tmp=wort+spacer;//Messzeile						
+							}
+							out+=wort+spacer;//Zeile Wort hinzufügen & merken
 						}
-						out+=wort+spacer;//Zeile Wort hinzufügen & merken
+					}
+					else{
+						out=worte.join(" ");
 					}
 					
 					if(out.length>0){//rest-Zeile ausgeben
-						yy+=lineheight+zhdiff;
-						xx=startX;
+						if(iswordwrap){
+							yy+=lineheight+zhdiff;
+							xx=startX;
+						}
 						
 						size = ctx.measureText(out);
 						

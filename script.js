@@ -589,7 +589,6 @@ ctx.stroke();
 						tmp=preworte[t];
 						isttrennen=(tmp.indexOf('-')>0 && tmp!="-");//"-1 mm" "-" nicht an erster Stelle!
 						
-						
 						if(isttrennen){//Worttrennungen
 							arr=tmp.split(/(?=-)|(?<=-)/);
 							for(t2=0;t2<arr.length;t2++){
@@ -632,7 +631,7 @@ ctx.stroke();
 							tmp+=wort+spacer;
 							size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
 	//console.log(tmp,size.width+xx,maxb);						
-							if(( (size.width+xx)>=maxb && iswordwrap) || t==worte.length-1){
+							if(( (size.width+xx)>maxb && iswordwrap) || t==worte.length-1){
 								//Breite überschreitet maximale breite, oder rest
 								if(t==worte.length-1 && (size.width+xx)<maxb){
 									out+=''+wort; //Rest

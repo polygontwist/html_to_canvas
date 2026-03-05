@@ -1,5 +1,5 @@
 "use strict";
-
+//Version: 05.03.2026
 
 const drawRoundRect=function(ctx,x,y,b,h,r){
 	ctx.beginPath();
@@ -582,13 +582,15 @@ ctx.stroke();
 					preworte=preworte.split('\n').join('');
 					preworte=preworte.split('\t').join('');
 					preworte=preworte.split(" ");
-
-
 					
 					worte=[];
+					var isttrennen=false;
 					for(t=0;t<preworte.length;t++){
 						tmp=preworte[t];
-						if(tmp.indexOf('-')>-1 && tmp!="-"){//Worttrennungen
+						isttrennen=(tmp.indexOf('-')>0 && tmp!="-");//"-1 mm" "-" nicht an erster Stelle!
+						
+						
+						if(isttrennen){//Worttrennungen
 							arr=tmp.split(/(?=-)|(?<=-)/);
 							for(t2=0;t2<arr.length;t2++){
 								if(arr[t2]=="-"){
@@ -770,10 +772,7 @@ ctx.stroke();
 		if(o["added"]!=undefined)o.added.remove();
 	}
 	
-	
 	ctx.restore();
-	//ctx.fillStyle = "#000000";
-	//ctx.fillRect(0, 0, canvas.width*0.5,  canvas.height*0.5);
 	
 	return redata;
 }

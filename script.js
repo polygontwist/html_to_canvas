@@ -272,6 +272,9 @@ const htmltocanvas=function(optionen){
 		if(styles["whiteSpace"]==="nowrap"){
 			iswordwrap=false;
 		}		
+
+		if(styles["display"]==="none")
+			return {"width":0,"height":0,"x":0,"y":0}
 		
 		//Element
 		padding.l=parseInt(styles.paddingLeft);

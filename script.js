@@ -1,5 +1,5 @@
 "use strict";
-//Version: 05.03.2026
+//Version: 15.04.2026
 
 const drawRoundRect=function(ctx,x,y,b,h,r){
 	ctx.beginPath();
@@ -611,7 +611,7 @@ ctx.stroke();
 					
 					tmp="";
 					out="";
-					var zeile=0;
+					var zeile=0,ausgegeben=0;
 					
 					size = ctx.measureText(worte.join(' '));
 					if(size.fontBoundingBoxDescent!=undefined)
@@ -620,8 +620,8 @@ ctx.stroke();
 						zhdiff=0;
 						if(size.actualBoundingBoxDescent)zhdiff+=size.actualBoundingBoxDescent;
 					}
-
-					if(iswordwrap){
+					
+					if(iswordwrap ){
 						for(t=0;t<worte.length;t++){
 							wort=worte[t];
 							spacer=" ";
@@ -630,10 +630,11 @@ ctx.stroke();
 							
 							tmp+=wort+spacer;
 							size = ctx.measureText(tmp);	//breite der gesammelten Worte + neues Wort
-	//console.log(tmp,size.width+xx,maxb);						
-							if(( (size.width+xx)>maxb && iswordwrap) || t==worte.length-1){
+							
+							if(  (( (size.width+xx)>maxb && iswordwrap) || t==worte.length-1 ) ) {
 								//Breite überschreitet maximale breite, oder rest
-								if(t==worte.length-1 && (size.width+xx)<maxb){
+								
+								if(t==worte.length-1 && (size.width+xx)<maxb){				//console.log(">>>",t,worte.length-1, (size.width+xx),maxb,worte);
 									out+=''+wort; //Rest
 									wort="";
 								}
@@ -664,23 +665,28 @@ ctx.stroke();
 										outy=yy+node.offsetHeight*0.5;
 										ctx.textBaseline="middle";
 									}
-	//if(node.nodeName==="A")console.log(styles.alignItems,lineheight,node.offsetHeight,size,node);								
+
 									//drawcross(ctx,outx,outy,6,styles.color);		
 
 									ctx.fillText(out,outx,outy);//Zeile ausgeben
+									ausgegeben++;
 									
 									//nächste Zeile
 									if(t<worte.length-1){
 										yy+=lineheight+zhdiff;
 										xx=startX;
 									}
+									
 									zeile++;
 								}
 								
 								out="";			//neue Zeile
 								tmp=wort+spacer;//Messzeile						
 							}
-							out+=wort+spacer;//Zeile Wort hinzufügen & merken
+							if(t<worte.length-1 )
+								out+=wort+spacer;//Zeile Wort hinzufügen & merken
+							else
+								out+=wort;
 						}
 					}
 					else{
@@ -688,11 +694,11 @@ ctx.stroke();
 					}
 					
 					if(out.length>0){//rest-Zeile ausgeben
-						if(iswordwrap){
+						if(iswordwrap && ausgegeben>0){
 							yy+=lineheight+zhdiff;
 							xx=startX;
 						}
-						
+
 						size = ctx.measureText(out);
 						
 						outx =xx+padding.l;

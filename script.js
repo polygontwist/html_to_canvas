@@ -1,5 +1,5 @@
 "use strict";
-//Version: 15.04.2026
+//Version: 01.10.2026
 
 const drawRoundRect=function(ctx,x,y,b,h,r){
 	ctx.beginPath();
@@ -205,13 +205,14 @@ const htmltocanvas=function(optionen){
 		i
 		;
 	if(optionen["scale"])qscale=optionen["scale"];
+	if(optionen["inputcolor"])inputcolor=optionen["inputcolor"];
 
 	//clonen geht nicht, weil nicht gerendet
 
 	var b=meinHTML.offsetWidth,
 		h=meinHTML.offsetHeight
 		;
-
+	
 
 	//canvas auf optimale größe setzen
 	var validewerte=[64,128,256,512,1024,2048];
@@ -241,6 +242,118 @@ const htmltocanvas=function(optionen){
 	
 	var linknodeliste=[];//sammlung für "A"-Tags
 	
+	const drawText=function(ctx,styles,optionen,out,outx,outy,size){
+		ctx.textAlign = "left";
+		ctx.textBaseline="alphabetic";//default
+		ctx.fillStyle = styles.color;
+		if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
+		
+		if(styles.alignItems==="center"){//vertikal centriert
+			ctx.textBaseline="middle";
+		}
+		
+		ctx.fillText(out,outx,outy);//Zeile ausgeben
+		
+		if(styles.textDecoration!="none"){
+			//console.log(styles.textDecoration);//"underline"
+			
+			var underlineColor = styles.textDecorationColor;
+			if (!underlineColor || underlineColor === 'currentColor') {
+				underlineColor = styles.color || '#000';
+			}
+			
+			const fontSize= styles.fontSize|| '16px';
+			
+			// --- Unterstreichungs-Stil (solid, dotted, dashed, double, wavy) ---
+			var decoStyle = styles.textDecorationStyle || 'solid';
+			if (!styles.textDecorationStyle) {
+				var decorStyles = ['wavy', 'dotted', 'dashed', 'double', 'solid'];
+				for (var i = 0; i < decorStyles.length; i++) {
+				  if (textDecoration.includes(decorStyles[i])) {
+					decoStyle = decorStyles[i];
+					break;
+				  }
+				}
+			}
+			
+			// --- Metriken & Position berechnen ---
+			const metrics   = ctx.measureText(out);
+			const textWidth = metrics.width;
+			const fsNum     = parseFloat(fontSize);
+
+			// Unterstrich-Offset: fontBoundingBoxDescent falls verfügbar, sonst Schätzwert
+			var underlineOffset =
+				metrics.fontBoundingBoxDescent !== undefined
+				  ? metrics.fontBoundingBoxDescent * 0.5
+				  : fsNum * 0.15;
+
+			// text-underline-offset berücksichtigen
+			const uo = styles.textUnderlineOffset;
+			if (uo && uo !== 'auto' && uo !== '0' && uo !== '0px') {
+			underlineOffset += parseFloat(uo);
+			}
+
+			const uy = outy + underlineOffset;
+			ctx.strokeStyle = underlineColor;
+			ctx.lineWidth   = Math.max(1, fsNum * 0.06);
+
+			// --- Linie entsprechend Stil zeichnen ---
+			switch (decoStyle) {
+			case 'dotted':
+			  ctx.setLineDash([ctx.lineWidth, ctx.lineWidth * 1.5]);
+			  break;
+			case 'dashed':
+			  ctx.setLineDash([ctx.lineWidth * 3, ctx.lineWidth * 2]);
+			  break;
+			case 'wavy':
+			  drawWavyLine(ctx, outx, uy, outx + textWidth, uy, ctx.lineWidth, underlineColor);
+			  return;
+			case 'double':
+			  ctx.setLineDash([]);
+			  ctx.beginPath();
+			  ctx.moveTo(outx, uy);   
+			  ctx.lineTo(outx + textWidth, uy);
+			  ctx.stroke();
+			  ctx.beginPath();
+			  ctx.moveTo(outx, uy + ctx.lineWidth * 2);
+			  ctx.lineTo(outx + textWidth, uy + ctx.lineWidth * 2); 
+			  ctx.stroke();
+			  return;
+			default: /* solid */
+			  ctx.setLineDash([]);
+			}
+
+			ctx.beginPath();
+			ctx.moveTo(outx, uy);
+			ctx.lineTo(outx + textWidth, uy);
+			ctx.stroke();
+			ctx.setLineDash([]); // zurücksetzen
+			
+			
+			//--lineHeight
+		}
+	}
+	// Hilfsfunktion: Wellenlinie für text-decoration: wavy 
+	const drawWavyLine=function drawWavyLine(ctx, x1, y1, x2, y2, lineWidth, color) {
+	  const amp       = lineWidth * 2.5;
+	  const wavelength = Math.max(lineWidth * 6, 4);
+	  const length    = x2 - x1;
+	  const steps      = Math.max(40, Math.ceil((length / wavelength) * 8));
+
+	  ctx.strokeStyle = color;
+	  ctx.lineWidth   = lineWidth;
+	  ctx.setLineDash([]);
+
+	  ctx.beginPath();
+	  for (let i = 0; i <= steps; i++) {
+		const t  = i / steps;
+		const px = x1 + length * t;
+		const py = y1 + Math.sin(t * Math.PI * 2 * (length / wavelength)) * amp;
+		i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+	  }
+	  ctx.stroke();
+	}
+	
 	const drawHTMLElement=function(node,data){
 		var pstart,pend,i,iz,t,t2,cnode,worte,preworte,wort,cstyle,
 			b,h,size,spacer,zhdiff,borerb,
@@ -260,6 +373,12 @@ const htmltocanvas=function(optionen){
 			
 		offsetXbreite=parseInt(styles.paddingLeft)+parseInt(styles.paddingRight);
 		lineheight=parseInt(styles.fontSize);//+size.actualBoundingBoxDescent;
+		if(styles.lineHeight.indexOf("px")>-1){
+			lineheight=parseInt(styles.lineHeight)-10;
+		}
+//console.log(lineheight,styles.lineHeight);
+		
+		
 		b=node.offsetWidth;
 		h=node.offsetHeight;
 		ctx.fillStyle = styles.backgroundColor;
@@ -303,7 +422,14 @@ ctx.stroke();
 		outx=xx;
 		outy=yy;
 		
-		var childnodelist=node.childNodes;
+		//var childnodelist=node.childNodes;
+		//sort by z-index!
+		var childnodelist = Array.from(node.childNodes).sort((a, b) => {
+		  if (a.nodeType !== 1 || b.nodeType !== 1) return 0;
+		  var za = parseInt(window.getComputedStyle(a).zIndex) || 0;
+		  var zb = parseInt(window.getComputedStyle(b).zIndex) || 0;
+		  return za - zb;
+		});
 		
 		var beforeStyle,beforecontent,textinhalt,prop;
 		//check auf before-Elemente ->lösche diese und ersetzt duch span-element
@@ -313,8 +439,11 @@ ctx.stroke();
 		//beforecontent=beforeStyle.getPropertyValue("content")
 		//textinhalt=beforecontent.split('"').join('');
 		
-		for(i=0;i<node.childNodes.length;i++){
-			cnode=node.childNodes[i];
+		//console.log("B",childnodelist);
+		
+		//Handling: beforecontent
+		for(i=0;i<childnodelist.length;i++){
+			cnode=childnodelist[i];
 			
 			if(cnode.nodeName!=="#text" && cnode.nodeName!="IMG" ){
 				cnodestyles=window.getComputedStyle(cnode);
@@ -378,15 +507,13 @@ ctx.stroke();
 		}
 
 	
-	
-		if(node.nodeName==="A" || node.nodeName==="BUTTON"){
-			//console.log("a-butt>>>>",outx,outy,b,h,scaleX,scaleY,node);
-			
+		//A-Tags als Liste zurückgeben, mit Positions und Größenangabe
+		if(node.nodeName==="A" || node.nodeName==="BUTTON"){//evtl. auch Label wenn htmlFor ??
 			if(b>0 && h>0){
 				redata.schalter.push({
 					"node":node,
-					"x": 1/canvas.width		*outx*scaleX,			//*scaleX
-					"y": 1/canvas.height	*outy*scaleY,		//*scaleY
+					"x": 1/canvas.width		*outx*scaleX,
+					"y": 1/canvas.height	*outy*scaleY,
 					"width":1/canvas.width	* b*scaleX,
 					"height":1/canvas.height* h*scaleY
 				});
@@ -537,7 +664,7 @@ ctx.stroke();
 							+inptextsize.actualBoundingBoxAscent
 							+inptextsize.actualBoundingBoxDescent
 							+parseInt(cstyle.paddingTop);					
-					
+
 					if(cstyle.textAlign==="center"
 						|| cstyle.justifyContent==="center"
 					){
@@ -552,7 +679,7 @@ ctx.stroke();
 					outy=cnode.offsetTop+node.offsetHeight*0.5;
 					
 					if(cstyle["display"]!="none")
-						ctx.fillText(cnode.value,outx,outy);
+						ctx.fillText(cnode.value,outx,outy);	//Textbox
 					//drawcross(ctx,outx,outy,6,styles.color);
 				}
 				
@@ -624,7 +751,7 @@ ctx.stroke();
 						if(size.actualBoundingBoxDescent)zhdiff+=size.actualBoundingBoxDescent;
 					}
 					
-					if(iswordwrap ){
+					if(iswordwrap){
 						for(t=0;t<worte.length;t++){
 							wort=worte[t];
 							spacer=" ";
@@ -647,13 +774,8 @@ ctx.stroke();
 									size = ctx.measureText(out);
 									
 									outx =xx+padding.l;
-									outy =yy+lineheight+padding.t;					
+									outy =yy+lineheight+padding.t;	
 									
-									ctx.textAlign = "left";
-									ctx.textBaseline="alphabetic";//default
-									ctx.fillStyle = styles.color;
-									if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
-						
 									if(styles.textAlign==="center"
 										|| styles.justifyContent==="center"
 									){
@@ -668,10 +790,11 @@ ctx.stroke();
 										outy=yy+node.offsetHeight*0.5;
 										ctx.textBaseline="middle";
 									}
-
+								
+									drawText(ctx,styles,optionen,out,outx,outy,size);
+									
 									//drawcross(ctx,outx,outy,6,styles.color);		
-
-									ctx.fillText(out,outx,outy);//Zeile ausgeben
+									
 									ausgegeben++;
 									
 									//nächste Zeile
@@ -707,11 +830,7 @@ ctx.stroke();
 						outx =xx+padding.l;
 						outy =yy+lineheight+padding.t;					
 						
-						ctx.textAlign = "left";
-						ctx.textBaseline="alphabetic";//default
-						ctx.fillStyle = styles.color;
-						if(optionen["alphamap"]===true)ctx.fillStyle = "#ffffff";
-			
+						
 						if(styles.textAlign==="center"
 							|| styles.justifyContent==="center"
 						){
@@ -721,12 +840,17 @@ ctx.stroke();
 							outx = xx + b -size.width - padding.r;
 						}
 						
-						if(styles.alignItems==="center"){
-							//vertikal centriert
+						if(styles.alignItems==="center"){//vertikal centriert
 							outy=yy+node.offsetHeight*0.5;
-							ctx.textBaseline="middle";
+							//Achtung bei mehrzeiligen Text mit <br> und ohne wordwrap 
+							var cnl=childnodelist.join('.');//[object HTMLBRElement]
+							var nodezeilen=cnl.split("[object HTMLBRElement]").length;
+							if(nodezeilen>1){
+								outy=yy+node.offsetHeight*0.5-lineheight*nodezeilen+lineheight;
+							}
 						}
-						ctx.fillText(out,outx,outy);//Zeile ausgeben
+						
+						drawText(ctx,styles,optionen,out,outx,outy,size);
 						
 					}
 					
